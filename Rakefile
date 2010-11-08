@@ -1,35 +1,43 @@
 # encoding: UTF-8
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = "streamly"
-    gem.summary = "A streaming REST client for Ruby, in C."
-    gem.email = "seniorlopez@gmail.com"
-    gem.homepage = "http://github.com/brianmario/streamly"
-    gem.authors = ["Brian Lopez"]
-    gem.require_paths = ["lib", "ext"]
-    gem.extra_rdoc_files = `git ls-files *.rdoc`.split("\n")
-    gem.files = `git ls-files`.split("\n")
-    gem.extensions = ["ext/extconf.rb"]
-    gem.files.include %w(lib/jeweler/templates/.document lib/jeweler/templates/.gitignore)
-    gem.rubyforge_project = "streamly"
-  end
-rescue LoadError
-  puts "Jeweler, or one of its dependencies, is not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
+
+require 'rake/gempackagetask'
+
+gemspec = eval File.read('streamly.gemspec')
+
+# Gem packaging tasks
+Rake::GemPackageTask.new(gemspec) do |pkg|
+  pkg.need_zip = false
+  pkg.need_tar = false
 end
 
-require 'rake'
-require 'spec/rake/spectask'
+task :gem => :gemspec
+
+desc %{Build the gemspec file.}
+task :gemspec do
+  gemspec.validate
+end
+
+desc %{Release the gem to RubyGems.org}
+task :release => :gem do
+  system "gem push pkg/#{gemspec.name}-#{gemspec.version}.gem"
+end
+
+require 'rspec/core'
+require 'rspec/core/rake_task'
 
 desc "Run all examples with RCov"
-Spec::Rake::SpecTask.new('spec:rcov') do |t|
-  t.spec_files = FileList['spec/']
-  t.rcov = true
+Rspec::Core::RakeTask.new('spec:rcov') do |t|
+#Spec::Rake::SpecTask.new('spec:rcov') do |t|
+  t.pattern   = ["spec/requests/**/*_spec.rb", "spec/**/server.rb"]
+  t.rcov      = true
   t.rcov_opts = lambda do
-    IO.readlines("spec/rcov.opts").map {|l| l.chomp.split " "}.flatten
+    IO.readlines("spec/rcov.opts").map {|line|
+      line.chomp.split " "
+    }.flatten
   end
 end
-Spec::Rake::SpecTask.new('spec') do |t|
-  t.spec_files = FileList['spec/']
-  t.spec_opts << '--options' << 'spec/spec.opts'
+Rspec::Core::RakeTask.new(:spec) do |t|
+#Spec::Rake::SpecTask.new('spec') do |t|
+  t.pattern   = ["spec/**/server.rb", "spec/requests/**/*_spec.rb"]
+#  t.opts  << '--options' << 'spec/spec.opts'
 end

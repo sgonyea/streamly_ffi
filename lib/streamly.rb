@@ -1,28 +1,21 @@
+$:.unshift(File.dirname(__FILE__)) unless
+  $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+
 # encoding: UTF-8
-require 'streamly_ext'
+require 'streamly/version'
 
 module Streamly
-  VERSION = "0.1.4"
-  
-  class Request
-    # A helper method to make your fire-and-forget requests easier
-    #
-    # Parameters:
-    # +args+ should be a Hash and is required
-    #   This Hash should at least contain +:url+ and +:method+ keys.
-    #   You may also provide the following optional keys:
-    #     +:headers+ - should be a Hash of name/value pairs
-    #     +:response_header_handler+ - can be a string or object that responds to #call
-    #       If an object was passed, it's #call method will be called and passed the current chunk of data
-    #     +:response_body_handler+ - can be a string or object that responds to #call
-    #       If an object was passed, it's #call method will be called and passed the current chunk of data
-    #     +:payload+ - If +:method+ is either +:post+ or +:put+ this will be used as the request body
-    #
-    def self.execute(args)
-      new(args).execute
-    end
-  end
-  
+  autoload :Request, "streamly/request"
+
+  class Error               < StandardError; end
+  class UnsupportedProtocol < StandardError; end
+  class URLFormatError      < StandardError; end
+  class HostResolutionError < StandardError; end
+  class ConnectionFailed    < StandardError; end
+  class PartialFileError    < StandardError; end
+  class TimeoutError        < StandardError; end
+  class TooManyRedirects    < StandardError; end
+
   # A helper method to make HEAD requests a dead-simple one-liner
   #
   # Example:
@@ -42,7 +35,7 @@ module Streamly
     opts.merge!({:response_header_handler => block}) if block_given?
     Request.execute(opts)
   end
-  
+
   # A helper method to make HEAD requests a dead-simple one-liner
   #
   # Example:
@@ -62,7 +55,7 @@ module Streamly
     opts.merge!({:response_body_handler => block}) if block_given?
     Request.execute(opts)
   end
-  
+
   # A helper method to make HEAD requests a dead-simple one-liner
   #
   # Example:
@@ -83,7 +76,7 @@ module Streamly
     opts.merge!({:response_body_handler => block}) if block_given?
     Request.execute(opts)
   end
-  
+
   # A helper method to make HEAD requests a dead-simple one-liner
   #
   # Example:
@@ -104,7 +97,7 @@ module Streamly
     opts.merge!({:response_body_handler => block}) if block_given?
     Request.execute(opts)
   end
-  
+
   # A helper method to make HEAD requests a dead-simple one-liner
   #
   # Example:
@@ -125,3 +118,5 @@ module Streamly
     Request.execute(opts)
   end
 end
+
+# require "streamly/request"  # May need to do this? Not sure how autoload works with FFI yet

@@ -1,5 +1,5 @@
 # encoding: UTF-8
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper.rb')
+require File.expand_path("../spec_helper", File.dirname(__FILE__))
 
 describe "Streamly's REST API" do
 
@@ -11,7 +11,7 @@ describe "Streamly's REST API" do
     context "basic" do
       it "should perform a basic request" do
         resp = Streamly.head('localhost:4567')
-        resp.should_not be_empty
+        resp.should_not be_nil
       end
 
       if RUBY_VERSION =~ /^1.9/
