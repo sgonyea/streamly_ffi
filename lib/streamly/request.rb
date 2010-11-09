@@ -14,14 +14,14 @@ module Streamly
     end
 
     StringHandler = Proc.new do |stream, size, nmemb, handler|
-      _str = (handler.null? ? "" : handler.read_string)
+#      _str = (handler.null? ? "" : handler.read_string)
       puts "---stream------------"
       puts stream.inspect
       puts "---_str--------------"
-      puts _str.inspect
+      puts handler.inspect
 
-      _str << stream
-      handler = FFI::MemoryPointer.from_string(_str)
+      handler << stream
+#      handler = FFI::MemoryPointer.from_string(handler)
 
       size * nmemb
     end
