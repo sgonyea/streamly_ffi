@@ -28,8 +28,10 @@ module Streamly
 
     DataHandler = Proc.new do |stream, size, nmemb, handler|
       case handler
-      when  String  then  handler << stream
-      else                handler.call(stream)
+      when  String then
+        handler << stream
+      else
+        handler.call(stream)
       end
       size * nmemb
     end
