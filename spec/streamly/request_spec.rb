@@ -1,19 +1,19 @@
 # encoding: UTF-8
 require File.expand_path("../spec_helper", File.dirname(__FILE__))
 
-describe "Streamly's REST API" do
+describe Streamly::Request do
 
   before(:all) do
     @response = "Hello, brian".strip
   end
 
-  context "HEAD" do
-    context "basic" do
+  describe "HEAD" do
+    describe "basic" do
       it "should perform a basic request" do
         resp = Streamly.head('localhost:4567')
         resp.should_not be_nil
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -27,11 +27,12 @@ describe "Streamly's REST API" do
           Streamly.head('localhost:4567').encoding.should eql(Encoding.default_internal)
         end
       end
+=end
     end
 
-    context "streaming" do
+    describe "streaming" do
       it "should perform a basic request and stream header chunks to the caller" do
-        streamed_response = ''
+        streamed_response = ""
         resp = Streamly.head('localhost:4567') do |chunk|
           chunk.should_not be_empty
           streamed_response << chunk
@@ -39,7 +40,7 @@ describe "Streamly's REST API" do
         resp.should be_nil
         streamed_response.should_not be_nil
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -59,16 +60,17 @@ describe "Streamly's REST API" do
           end
         end
       end
+=end
     end
   end
 
-  context "GET" do
-    context "basic" do
+  describe "GET" do
+    describe "basic" do
       it "should perform a basic request" do
         resp = Streamly.get('localhost:4567/?name=brian')
         resp.should eql(@response)
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -82,9 +84,10 @@ describe "Streamly's REST API" do
           Streamly.get('localhost:4567').encoding.should eql(Encoding.default_internal)
         end
       end
+=end
     end
 
-    context "streaming" do
+    describe "streaming" do
       it "should perform a basic request and stream the response to the caller" do
         streamed_response = ''
         resp = Streamly.get('localhost:4567/?name=brian') do |chunk|
@@ -94,7 +97,7 @@ describe "Streamly's REST API" do
         resp.should be_nil
         streamed_response.should eql(@response)
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -114,16 +117,17 @@ describe "Streamly's REST API" do
           end
         end
       end
+=end
     end
   end
 
-  context "POST" do
-    context "basic" do
+  describe "POST" do
+    describe "basic" do
       it "should perform a basic request" do
         resp = Streamly.post('localhost:4567', 'name=brian')
         resp.should eql(@response)
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -137,9 +141,10 @@ describe "Streamly's REST API" do
           Streamly.post('localhost:4567', 'name=brian').encoding.should eql(Encoding.default_internal)
         end
       end
+=end
     end
 
-    context "streaming" do
+    describe "streaming" do
       it "should perform a basic request and stream the response to the caller" do
         streamed_response = ''
         resp = Streamly.post('localhost:4567', 'name=brian') do |chunk|
@@ -149,7 +154,7 @@ describe "Streamly's REST API" do
         resp.should be_nil
         streamed_response.should eql(@response)
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -169,16 +174,17 @@ describe "Streamly's REST API" do
           end
         end
       end
+=end
     end
   end
 
-  context "PUT" do
-    context "basic" do
+  describe "PUT" do
+    describe "basic" do
       it "should perform a basic request" do
         resp = Streamly.put('localhost:4567', 'name=brian')
         resp.should eql(@response)
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -192,9 +198,10 @@ describe "Streamly's REST API" do
           Streamly.put('localhost:4567', 'name=brian').encoding.should eql(Encoding.default_internal)
         end
       end
+=end
     end
 
-    context "streaming" do
+    describe "streaming" do
       it "should perform a basic request and stream the response to the caller" do
         streamed_response = ''
         resp = Streamly.put('localhost:4567', 'name=brian') do |chunk|
@@ -204,7 +211,7 @@ describe "Streamly's REST API" do
         resp.should be_nil
         streamed_response.should eql(@response)
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -224,15 +231,16 @@ describe "Streamly's REST API" do
           end
         end
       end
+=end
     end
   end
 
-  context "DELETE" do
-    context "basic" do
+  describe "DELETE" do
+    describe "basic" do
       it "should perform a basic request" do
         resp = Streamly.delete('localhost:4567/?name=brian').should eql(@response)
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -246,9 +254,10 @@ describe "Streamly's REST API" do
           Streamly.delete('localhost:4567/?name=brian').encoding.should eql(Encoding.default_internal)
         end
       end
+=end
     end
 
-    context "streaming" do
+    describe "streaming" do
       it "should perform a basic request and stream the response to the caller" do
         streamed_response = ''
         resp = Streamly.delete('localhost:4567/?name=brian') do |chunk|
@@ -258,7 +267,7 @@ describe "Streamly's REST API" do
         resp.should be_nil
         streamed_response.should eql(@response)
       end
-
+=begin
       if RUBY_VERSION =~ /^1.9/
         it "should default to utf-8 if Encoding.default_internal is nil" do
           Encoding.default_internal = nil
@@ -278,6 +287,7 @@ describe "Streamly's REST API" do
           end
         end
       end
+=end
     end
   end
 end

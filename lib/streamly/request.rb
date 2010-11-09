@@ -38,37 +38,37 @@ module Streamly
 
       if options[:headers].is_a? Hash and options[:headers].size > 0
         options[:headers].each_pair do |key_and_value|
-          @request_headers = CurlFFI.slist_append(request_headers, key_and_value.join(": "))
+          request_headers = CurlFFI.slist_append(request_headers, key_and_value.join(": "))
         end
-        connection.setopt :HTTPHEADER, @request_headers
+        connection.setopt :HTTPHEADER, request_headers
       end
 
       if options[:response_header_handler].nil?
-        connection.setopt_handler :HEADERFUNCTION,  self.data_handler(@response_header_handler = "")
+        connection.setopt_handler :HEADERFUNCTION, data_handler(response_header_handler = "")
       else
-        @response_header_handler = options[:response_header_handler]
+        response_header_handler = options[:response_header_handler]
 
-        if(@response_header_handler.is_a? String)
-          connection.setopt_handler :HEADERFUNCTION,  self.data_handler(@response_header_handler)
+        if(response_header_handler.is_a? String)
+          connection.setopt_handler :HEADERFUNCTION,  data_handler(response_header_handler)
         else
-          connection.setopt_handler :HEADERFUNCTION,  self.data_handler
-          connection.setopt :WRITEHEADER,             @response_header_handler
+          connection.setopt_handler :HEADERFUNCTION,  data_handler
+          connection.setopt :WRITEHEADER,             response_header_handler
         end
       end
 
       unless method == :head
         connection.setopt :ENCODING,  "identity, deflate, gzip"
-        
-        if options[:response_body_handler].nil?
-          connection.setopt_handler :WRITEFUNCTION,  self.data_handler(@response_body_handler = "")
-        else
-          @response_body_handler = options[:response_body_handler]
 
-          if(@response_body_handler.is_a? String)
-            connection.setopt_handler :WRITEFUNCTION, self.data_handler(@response_body_handler)
+        if options[:response_body_handler].nil?
+          connection.setopt_handler :WRITEFUNCTION,  data_handler(response_body_handler = "")
+        else
+          response_body_handler = options[:response_body_handler]
+
+          if(response_body_handler.is_a? String)
+            connection.setopt_handler :WRITEFUNCTION, data_handler(response_body_handler)
           else
-            connection.setopt_handler :WRITEFUNCTION, self.data_handler
-            connection.setopt :FILE,                  @response_body_handler
+            connection.setopt_handler :WRITEFUNCTION, data_handler
+            connection.setopt :FILE,                  response_body_handler
           end
         end
       end
@@ -109,22 +109,39 @@ module Streamly
       CurlFFI.slist_free_all(@request_headers) if @request_headers
 
       @connection.reset
-
-      if(@method == :head) #and @response_header_handler.respond_to?(:to_str))
-        return @response_header_handler
-      elsif(response_body_handler.is_a? String)
-        return response_body_handler
-      else
-        return nil
-      end
     end
     
     def self.execute(options={})
-      new(options).execute
+      puts "-----------------------"
+      10.times{ puts "" }
+      request = new(options)
+      resp    = request.execute
+
+      puts "--options"
+      puts options.inspect
+      
+      response  = if(options[:method] == :head) #and @response_header_handler.respond_to?(:to_str))
+                    puts "__:head__"
+                    request.response_header_handler
+                  elsif(request.response_body_handler.is_a? String)
+                    puts "__:body__"
+                    request.response_body_handler
+                  else
+                    nil
+                  end
+      
+      return(response)
     end
 
     def data_handler(_string=nil)
       Proc.new{ |stream, size, nmemb, handler|
+        puts "---stream---------"
+        puts stream.inspect
+        puts "---handler--------"
+        puts handler.inspect
+        puts "---_string--------"
+        puts _string.inspect
+
         if(_string)
           _string << stream
         else
