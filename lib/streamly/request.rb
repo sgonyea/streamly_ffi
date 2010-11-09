@@ -1,4 +1,6 @@
-require "ffi"
+$:.unshift(File.dirname(__FILE__)) unless
+  $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+
 require "curl_ffi"
 require "singleton"
 
@@ -14,25 +16,28 @@ module Streamly
     end
 
     StringHandler = Proc.new do |stream, size, nmemb, handler|
-#      _str = (handler.null? ? "" : handler.read_string)
+      _str = (handler.null? ? "" : handler.read_string)
       puts "---stream------------"
       puts stream.inspect
-      puts "---_str--------------"
+      puts "---handler => #{handler.object_id}--------------"
       puts handler.inspect
+      puts "---_str--------------"
+      puts _str.inspect
 
-      handler << stream
-#      handler = FFI::MemoryPointer.from_string(handler)
+      handler.write_string(_str)
+#      handler = FFI::MemoryPointer.from_string(_str)
 
       size * nmemb
     end
 
     DataHandler = Proc.new do |stream, size, nmemb, handler|
       case handler
-      when  String then
+      when  String
         handler << stream
       else
         handler.call(stream)
       end
+
       size * nmemb
     end
 
@@ -71,13 +76,13 @@ module Streamly
 
       if options[:response_header_handler].nil?
 #        @response_header_handler = FFI::MemoryPointer.from_string("")
-        @response_header_handler = FFI::MemoryPointer.new(:pointer)
-        connection.setopt_str_handler :HEADERFUNCTION,  StringHandler
-        connection.setopt_str_handler :WRITEHEADER,     @response_header_handler
+        @response_header_handler = ""
+        connection.setopt_handler :HEADERFUNCTION,  StringHandler
+        connection.setopt :WRITEHEADER,     @response_header_handler
       else
         @response_header_handler = options[:response_header_handler]
         connection.setopt_handler :HEADERFUNCTION,  CallHandler
-        connection.setopt_handler :WRITEHEADER,     @response_header_handler
+        connection.setopt :WRITEHEADER,     @response_header_handler
       end
 
       unless method == :head
@@ -85,13 +90,13 @@ module Streamly
 
         if options[:response_body_handler].nil?
 #          @response_body_handler = FFI::MemoryPointer.from_string("")
-          @response_body_handler = FFI::MemoryPointer.new(:pointer)
-          connection.setopt_str_handler :WRITEFUNCTION, StringHandler
-          connection.setopt_str_handler :FILE,          @response_body_handler
+          @response_body_handler = ""
+          connection.setopt_handler :WRITEFUNCTION, StringHandler
+          connection.setopt :FILE,          @response_body_handler
         else
           @response_body_handler = options[:response_body_handler]
           connection.setopt_handler :WRITEFUNCTION, CallHandler
-          connection.setopt_handler :FILE,          @response_body_handler
+          connection.setopt :FILE,          @response_body_handler
         end
       end
 
