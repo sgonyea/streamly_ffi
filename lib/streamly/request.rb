@@ -8,38 +8,7 @@ module Streamly
   class Request
     include Singleton
 
-    attr_reader :response_header_handler, :response_body_handler
-
-    CallHandler = Proc.new do |stream, size, nmemb, handler|
-      handler.call(stream)
-      size * nmemb
-    end
-
-    StringHandler = Proc.new do |stream, size, nmemb, handler|
-      _str = (handler.null? ? "" : handler.read_string)
-      puts "---stream------------"
-      puts stream.inspect
-      puts "---handler => #{handler.object_id}--------------"
-      puts handler.inspect
-      puts "---_str--------------"
-      puts _str.inspect
-
-      handler.write_string(_str)
-#      handler = FFI::MemoryPointer.from_string(_str)
-
-      size * nmemb
-    end
-
-    DataHandler = Proc.new do |stream, size, nmemb, handler|
-      case handler
-      when  String
-        handler << stream
-      else
-        handler.call(stream)
-      end
-
-      size * nmemb
-    end
+    attr_reader :response_header_handler, :response_body_handler, :url, :method
 
     # @TODO: Argumenting Checking + Error Handling
     def initialize(options={})
@@ -75,42 +44,46 @@ module Streamly
       end
 
       if options[:response_header_handler].nil?
-#        @response_header_handler = FFI::MemoryPointer.from_string("")
-        @response_header_handler = ""
-        connection.setopt_handler :HEADERFUNCTION,  StringHandler
-        connection.setopt :WRITEHEADER,     @response_header_handler
+        connection.setopt_handler :HEADERFUNCTION,  self.data_handler(@response_header_handler = "")
       else
         @response_header_handler = options[:response_header_handler]
-        connection.setopt_handler :HEADERFUNCTION,  CallHandler
-        connection.setopt :WRITEHEADER,     @response_header_handler
+
+        if(@response_header_handler.is_a? String)
+          connection.setopt_handler :HEADERFUNCTION,  self.data_handler(@response_header_handler)
+        else
+          connection.setopt_handler :HEADERFUNCTION,  self.data_handler
+          connection.setopt :WRITEHEADER,             @response_header_handler
+        end
       end
 
       unless method == :head
         connection.setopt :ENCODING,  "identity, deflate, gzip"
-
+        
         if options[:response_body_handler].nil?
-#          @response_body_handler = FFI::MemoryPointer.from_string("")
-          @response_body_handler = ""
-          connection.setopt_handler :WRITEFUNCTION, StringHandler
-          connection.setopt :FILE,          @response_body_handler
+          connection.setopt_handler :WRITEFUNCTION,  self.data_handler(@response_body_handler = "")
         else
           @response_body_handler = options[:response_body_handler]
-          connection.setopt_handler :WRITEFUNCTION, CallHandler
-          connection.setopt :FILE,          @response_body_handler
+
+          if(@response_body_handler.is_a? String)
+            connection.setopt_handler :WRITEFUNCTION, self.data_handler(@response_body_handler)
+          else
+            connection.setopt_handler :WRITEFUNCTION, self.data_handler
+            connection.setopt :FILE,                  @response_body_handler
+          end
         end
       end
 
-      connection.setopt :URL,            FFI::MemoryPointer.from_string(url)
+      connection.setopt :URL,             url
 
       # Other common options (blame streamly guy)
-      connection.setopt :FOLLOWLOCATION, 1
-      connection.setopt :MAXREDIRS,      3
+      connection.setopt :FOLLOWLOCATION,  1
+      connection.setopt :MAXREDIRS,       3
 
       # This should be an option
-      connection.setopt :SSL_VERIFYPEER, 0
-      connection.setopt :SSL_VERIFYHOST, 0
+      connection.setopt :SSL_VERIFYPEER,  0
+      connection.setopt :SSL_VERIFYHOST,  0
 
-      connection.setopt :ERRORBUFFER,    error_buffer
+      connection.setopt :ERRORBUFFER,     error_buffer
 
       return self
     end
@@ -126,16 +99,40 @@ module Streamly
     def request_headers
       @request_headers ||= FFI::MemoryPointer.from_string("")
     end
-=begin
 
-=end
     def execute
-      connection.perform
-      return response_body_handler
+      status = connection.perform
+
+      # @TODO: Intelligent error stuff
+#      raise Streamly::Error if status 
+
+      CurlFFI.slist_free_all(@request_headers) if @request_headers
+
+      @connection.reset
+
+      if(@method == :head) #and @response_header_handler.respond_to?(:to_str))
+        return @response_header_handler
+      elsif(response_body_handler.is_a? String)
+        return response_body_handler
+      else
+        return nil
+      end
     end
     
     def self.execute(options={})
       new(options).execute
+    end
+
+    def data_handler(_string=nil)
+      Proc.new{ |stream, size, nmemb, handler|
+        if(_string)
+          _string << stream
+        else
+          handler.call(stream)
+        end
+
+        size * nmemb
+      }
     end
 
   # streamly's .c internal methods:
