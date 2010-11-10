@@ -2,7 +2,7 @@
 
 require 'rake/gempackagetask'
 
-gemspec = eval File.read('streamly.gemspec')
+gemspec = eval File.read('streamly_ffi.gemspec')
 
 # Gem packaging tasks
 Rake::GemPackageTask.new(gemspec) do |pkg|
@@ -38,6 +38,6 @@ Rspec::Core::RakeTask.new('spec:rcov') do |t|
 end
 Rspec::Core::RakeTask.new(:spec) do |t|
 #Spec::Rake::SpecTask.new('spec') do |t|
-  t.pattern   = "spec/streamly/**/*_spec.rb"
+  t.pattern   = "spec/streamly_ffi/**/*_spec.rb"
 #  t.opts  << '--options' << 'spec/spec.opts'
 end

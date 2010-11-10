@@ -3,10 +3,14 @@
 # Instead, edit Jeweler::Tasks in Rakefile, and run the gemspec command
 # -*- encoding: utf-8 -*-
 
+$:.push File.expand_path("../lib", __FILE__)
+
+require "streamly_ffi/version"
+
 Gem::Specification.new do |s|
   s.name = %q{streamly_ffi}
   s.version = StreamlyFFI::VERSION
-  s.platform    = Gem::Platform::RUBY
+  s.platform  = Gem::Platform::RUBY
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Brian Lopez", "Scott Gonyea"]
   s.date = %q{2010-09-02}
