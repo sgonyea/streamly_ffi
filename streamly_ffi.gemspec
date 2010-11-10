@@ -5,37 +5,25 @@
 
 $:.push File.expand_path("../lib", __FILE__)
 
+require "date"
 require "streamly_ffi/version"
 
 Gem::Specification.new do |s|
-  s.name = %q{streamly_ffi}
-  s.version = StreamlyFFI::VERSION
-  s.platform  = Gem::Platform::RUBY
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Brian Lopez", "Scott Gonyea"]
-  s.date = %q{2010-09-02}
-  s.email = %q{seniorlopez@gmail.com}
-  s.extensions = ["ext/extconf.rb"]
-  s.extra_rdoc_files = [
-    "README.rdoc"
-  ]
-  s.files         = `git ls-files`.split("\n")
-  s.homepage = %q{http://github.com/aitrus/streamly_ffi}
-  s.rdoc_options = ["--charset=UTF-8"]
-  s.require_paths = ["lib", "ext"]
-  s.rubyforge_project = %q{streamly_ffi}
-  s.rubygems_version = %q{1.3.7}
-  s.summary = %q{A streaming REST client for Ruby, in C.}
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.name            = "streamly_ffi"
+  s.version         = StreamlyFFI::VERSION
+  s.summary         = %q{A streaming Curl/HTTP/REST client for Ruby, in cross-Ruby FFI.}
+  s.description     = %q{A streaming Curl/HTTP/REST client for Ruby, in cross-Ruby FFI. Using the CurlFFI RubyGem.}
+  s.authors         = ["Brian Lopez", "Scott Gonyea"]
+  s.date            = Date.today.to_s
+  s.email           = %q{seniorlopez@gmail.com}
+  s.homepage        = %q{http://github.com/aitrus/streamly_ffi}
 
-  if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
-    s.specification_version = 3
+  s.platform        = Gem::Platform::RUBY
+  s.add_dependency    "curl_ffi"
+  s.add_development_dependency "rspec"
 
-    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-    else
-    end
-  else
-  end
+  s.files           = `git ls-files`.split("\n")
+  s.test_files      = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.require_paths   = ["lib"]
 end
 
