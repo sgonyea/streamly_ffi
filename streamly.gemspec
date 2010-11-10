@@ -4,7 +4,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{streamly}
+  s.name = %q{streamly_ffi}
   s.version = StreamlyFFI::VERSION
   s.platform    = Gem::Platform::RUBY
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
@@ -16,10 +16,10 @@ Gem::Specification.new do |s|
     "README.rdoc"
   ]
   s.files         = `git ls-files`.split("\n")
-  s.homepage = %q{http://github.com/brianmario/streamly}
+  s.homepage = %q{http://github.com/aitrus/streamly_ffi}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib", "ext"]
-  s.rubyforge_project = %q{streamly}
+  s.rubyforge_project = %q{streamly_ffi}
   s.rubygems_version = %q{1.3.7}
   s.summary = %q{A streaming REST client for Ruby, in C.}
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
