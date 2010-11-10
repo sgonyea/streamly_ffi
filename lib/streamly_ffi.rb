@@ -2,10 +2,10 @@ $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
 # encoding: UTF-8
-require 'streamly/version'
+require 'streamly_ffi/version'
 
-module Streamly
-  autoload :Request, "streamly/request"
+module StreamlyFFI
+  autoload :Request, "streamly_ffi/request"
 
   class Error               < StandardError; end
   class UnsupportedProtocol < StandardError; end
