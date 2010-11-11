@@ -1,0 +1,32 @@
+PATH
+  remote: .
+  specs:
+    streamly_ffi (0.1.6)
+      curl_ffi
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    curl_ffi (0.0.6)
+      ffi
+    diff-lcs (1.1.2)
+    ffi (0.6.3)
+      rake (>= 0.8.7)
+    rake (0.8.7)
+    rspec (2.1.0)
+      rspec-core (~> 2.1.0)
+      rspec-expectations (~> 2.1.0)
+      rspec-mocks (~> 2.1.0)
+    rspec-core (2.1.0)
+    rspec-expectations (2.1.0)
+      diff-lcs (~> 1.1.2)
+    rspec-mocks (2.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  curl_ffi
+  rspec
+  rspec-core
+  streamly_ffi!

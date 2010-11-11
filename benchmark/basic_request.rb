@@ -35,9 +35,17 @@ Benchmark.bmbm do |x|
   end
 
   x.report do
+    puts "StreamlyFFI2"
+    conn = StreamlyFFI::Connection.new
+    (ARGV[1] || 1).to_i.times do
+      conn.get(url)
+    end
+  end
+
+  x.report do
     puts "`curl`"
     (ARGV[1] || 1).to_i.times do
-      `curl -s --compressed #{url}`
+      `curl --compressed --silent #{url}`
     end
   end
 

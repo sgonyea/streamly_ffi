@@ -5,7 +5,10 @@ $:.unshift(File.dirname(__FILE__)) unless
 require 'streamly_ffi/version'
 
 module StreamlyFFI
-  autoload :Request, "streamly_ffi/request"
+  autoload :Base,               "streamly_ffi/base"
+  autoload :Connection,         "streamly_ffi/connection"
+  autoload :Request,            "streamly_ffi/request"
+  autoload :PersistentRequest,  "streamly_ffi/persistent_request"
 
   class Error               < StandardError; end
   class UnsupportedProtocol < StandardError; end
@@ -117,6 +120,22 @@ module StreamlyFFI
     opts.merge!({:response_body_handler => block}) if block_given?
     Request.execute(opts)
   end
-end
 
-# require "streamly/request"  # May need to do this? Not sure how autoload works with FFI yet
+  # A helper method to make HEAD requests a dead-simple one-liner
+  #
+  # Example:
+  #   Streamly.delete("www.somehost.com/some_resource/1")
+  #
+  #   Streamly.delete("www.somehost.com/some_resource/1") do |chunk|
+  #     # do something with _chunk_
+  #   end
+  #
+  # Parameters:
+  # +url+ should be a String, the url to request
+  # +headers+ should be a Hash and is optional
+  # 
+  # This method also accepts a block, which will stream the response body in chunks to the caller
+  def self.connect
+    Connection.new
+  end
+end

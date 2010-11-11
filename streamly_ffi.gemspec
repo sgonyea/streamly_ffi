@@ -18,7 +18,6 @@ Gem::Specification.new do |s|
   s.email           = %q{seniorlopez@gmail.com}
   s.homepage        = %q{http://github.com/aitrus/streamly_ffi}
 
-  s.platform        = Gem::Platform::RUBY
   s.add_dependency    "curl_ffi"
   s.add_development_dependency "rspec"
 
