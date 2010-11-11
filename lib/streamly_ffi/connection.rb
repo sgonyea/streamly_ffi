@@ -108,5 +108,9 @@ module StreamlyFFI
       opts[:response_body_handler] = block if block_given?
       self.connection.execute(opts)
     end
+
+    def escape(_string)
+      self.connection.escape(_string)
+    end
   end
 end
