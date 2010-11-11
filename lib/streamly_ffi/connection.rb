@@ -1,10 +1,10 @@
 module StreamlyFFI
   class Connection
 
-    attr_accessor :connection
+    attr_accessor :curl_handle
 
     def initialize
-      self.connection ||= StreamlyFFI::PersistentRequest.new
+      @curl_handle = StreamlyFFI::PersistentRequest.new
     end
 
     # A helper method to make HEAD requests a dead-simple one-liner
@@ -24,7 +24,7 @@ module StreamlyFFI
     def head(url, headers=nil, &block)
       opts = {:method => :head, :url => url, :headers => headers}
       opts[:response_header_handler] = block if block_given?
-      self.connection.execute(opts)
+      @curl_handle.execute(opts)
     end
 
     # A helper method to make HEAD requests a dead-simple one-liner
@@ -44,7 +44,7 @@ module StreamlyFFI
     def get(url, headers=nil, &block)
       opts = {:method => :get, :url => url, :headers => headers}
       opts[:response_body_handler] = block if block_given?
-      self.connection.execute(opts)
+      @curl_handle.execute(opts)
     end
 
     # A helper method to make HEAD requests a dead-simple one-liner
@@ -65,7 +65,7 @@ module StreamlyFFI
     def post(url, payload, headers=nil, &block)
       opts = {:method => :post, :url => url, :payload => payload, :headers => headers}
       opts[:response_body_handler] = block if block_given?
-      self.connection.execute(opts)
+      @curl_handle.execute(opts)
     end
 
     # A helper method to make HEAD requests a dead-simple one-liner
@@ -86,7 +86,7 @@ module StreamlyFFI
     def put(url, payload, headers=nil, &block)
       opts = {:method => :put, :url => url, :payload => payload, :headers => headers}
       opts[:response_body_handler] = block if block_given?
-      self.connection.execute(opts)
+      @curl_handle.execute(opts)
     end
 
     # A helper method to make HEAD requests a dead-simple one-liner
@@ -106,11 +106,11 @@ module StreamlyFFI
     def delete(url, headers={}, &block)
       opts = {:method => :delete, :url => url, :headers => headers}
       opts[:response_body_handler] = block if block_given?
-      self.connection.execute(opts)
+      @curl_handle.execute(opts)
     end
 
     def escape(_string)
-      self.connection.escape(_string)
+      @curl_handle.escape(_string)
     end
   end
 end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    streamly_ffi (0.2.2)
+    streamly_ffi (0.2.4)
       curl_ffi
 
 GEM
