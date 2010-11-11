@@ -9,12 +9,8 @@ module StreamlyFFI
     include Singleton
     include StreamlyFFI::Base
 
-    def initialize(options={})
-      self.set_options(options)
-    end
-
     def self.execute(options={})
-      new(options).execute
+      new.execute(options)
     end
   end
 end
