@@ -4,7 +4,7 @@ module StreamlyFFI
     attr_accessor :connection
 
     def initialize
-      self.connection = StreamlyFFI::PersistentRequest.new
+      self.connection ||= StreamlyFFI::PersistentRequest.new
     end
 
     # A helper method to make HEAD requests a dead-simple one-liner

@@ -11,5 +11,8 @@ module StreamlyFFI
         send _sym
     end
 
+    def escape(_string)
+      connection.escape(_string)
+    end
   end
 end
