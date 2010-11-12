@@ -5,10 +5,14 @@ $:.unshift(File.dirname(__FILE__)) unless
 require 'streamly_ffi/version'
 
 module StreamlyFFI
-  autoload :Base,               "streamly_ffi/base"
-  autoload :Connection,         "streamly_ffi/connection"
-  autoload :Request,            "streamly_ffi/request"
-  autoload :PersistentRequest,  "streamly_ffi/persistent_request"
+#  autoload :Base,               "streamly_ffi/base"
+require "streamly_ffi/base"
+require "streamly_ffi/connection"
+require "streamly_ffi/request"
+require "streamly_ffi/persistent_request"
+#  autoload :Connection,         "streamly_ffi/connection"
+#  autoload :Request,            "streamly_ffi/request"
+#  autoload :PersistentRequest,  "streamly_ffi/persistent_request"
 
   class Error               < StandardError; end
   class UnsupportedProtocol < StandardError; end

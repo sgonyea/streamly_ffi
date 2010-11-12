@@ -4,12 +4,13 @@ module StreamlyFFI
 
     attr_accessor :url, :method, :default_write_handler, :default_header_handler
 
+    DEFAULT_CURL_ENCODING = "identity, deflate, gzip"
+
     def execute(options={})
+      connection.reset
       set_options(options).perform
 
       CurlFFI.slist_free_all(@request_headers) if @request_headers
-
-      connection.reset
 
       resp  = if(options.has_key?(:response_header_handler) or options.has_key?(:response_body_handler))
                 nil
@@ -29,9 +30,9 @@ module StreamlyFFI
     end
 
     def set_options(options={})
-      @url      = options[:url]     if options.has_key?(:url)     # Make sure @url is set, if not
-      @method   = options[:method]  if options.has_key?(:method)  # Make sure @method is set, if not
-      @payload  = options[:payload]
+      @url      = options[:url].dup     if options.has_key?(:url)     # Make sure @url is set, if not
+      @method   = options[:method]      if options.has_key?(:method)  # Make sure @method is set, if not
+      @payload  = options[:payload].dup if options.has_key?(:payload)
 
       @response_body          = nil
       @response_header        = nil
@@ -67,6 +68,7 @@ module StreamlyFFI
         @custom_header_handler = options[:response_header_handler]
         set_header_handler(:custom_header_callback)
       else
+        @response_header = ""
         set_header_handler
       end
 
@@ -74,10 +76,11 @@ module StreamlyFFI
         @custom_write_handler = options[:response_body_handler]
         set_write_handler(:custom_write_callback)
       else
+        @response_body = ""
         set_write_handler
       end
 
-      connection.setopt :ENCODING,        "identity, deflate, gzip" unless @method == :head
+      connection.setopt :ENCODING,        DEFAULT_CURL_ENCODING unless @method == :head
       connection.setopt :URL,             @url
 
       # Other common options (blame streamly guy)
@@ -102,7 +105,7 @@ module StreamlyFFI
     alias :error    :error_buffer
 
     def request_headers
-      @request_headers ||= FFI::MemoryPointer.from_string("")
+      @request_headers ||= FFI::MemoryPointer.new(:pointer)
     end
 
     def response_body
@@ -117,37 +120,42 @@ module StreamlyFFI
     alias :headers  :response_header
 
     def set_write_handler(_callback=:default_write_callback)
-      connection.setopt(:WRITEFUNCTION, FFI::Function.new(:size_t, [:pointer, :size_t, :size_t,], &self.__method__(_callback)))
+      @_write_handler = FFI::Function.new(:size_t, [:pointer, :size_t, :size_t,], &self.__method__(_callback))
+
+      connection.setopt(:WRITEFUNCTION, @_write_handler)
     end
 
     def set_header_handler(_callback=:default_header_callback)
-      connection.setopt(:HEADERFUNCTION, FFI::Function.new(:size_t, [:pointer, :size_t, :size_t], &self.__method__(_callback)))
+      @_header_handler = FFI::Function.new(:size_t, [:pointer, :size_t, :size_t], &self.__method__(_callback))
+      connection.setopt(:HEADERFUNCTION, @_header_handler)
     end
 
     def default_write_callback(string_ptr, size, nmemb)
-      length = size * nmemb
-      response_body << string_ptr.read_string(length)
+      length  = size * nmemb
+      @response_body << string_ptr.read_string(length).dup
 
       return length
     end
 
     def default_header_callback(string_ptr, size, nmemb)
-      length = size * nmemb
-      response_header << string_ptr.read_string(length)
+      length  = size * nmemb
+      @response_header << string_ptr.read_string(length).dup
 
       return length
     end
 
     def custom_write_callback(string_ptr, size, nmemb)
-      length = size * nmemb
-      @custom_write_handler.call(string_ptr.read_string(length))
+      length  = size * nmemb
+      @_wcall = string_ptr.read_string(length)
+      @custom_write_handler.call(string_ptr.read_string(length).dup)
 
       return length
     end
 
     def custom_header_callback(string_ptr, size, nmemb)
-      length = size * nmemb
-      @custom_header_handler.call(string_ptr.read_string(length))
+      length  = size * nmemb
+      @_hcall = string_ptr.read_string(length)
+      @custom_header_handler.call(string_ptr.read_string(length).dup)
 
       return length
     end

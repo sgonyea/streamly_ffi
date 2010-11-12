@@ -8,7 +8,7 @@ module StreamlyFFI
     include StreamlyFFI::Base
 
     def [](_sym)
-        send _sym
+      send _sym
     end
 
     def escape(_string)
