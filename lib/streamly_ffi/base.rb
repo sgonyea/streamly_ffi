@@ -2,10 +2,18 @@ module StreamlyFFI
   module Base
     alias __method__ method
 
-    attr_accessor :url, :method, :default_write_handler, :default_header_handler
+    # @return [String] the current URL for Curl to call out to
+    attr_accessor :url
+
+    # @return [Symbol] the current method that Curl is to use for its request
+    attr_accessor :method
 
     DEFAULT_CURL_ENCODING = "identity, deflate, gzip"
 
+    # Execution Wrapper; resets everything, sets new options, performs the work, and gives you back "something"
+    #   @param [Hash] options @see self#set_options
+    #   @return [String, nil] If custom response handlers were set, nil is returned. If not, the response header is
+    #       is returned if :head request was sent. response body is returned otherwise.
     def execute(options={})
       connection.reset
       set_options(options).perform
@@ -25,28 +33,10 @@ module StreamlyFFI
       return resp
     end
 
+    # Tells Curl to perform whatever work is currently provisioned via its setopt interface
     def perform
       connection.perform
     end
-
-    # Set/add request headers in Curl's slist
-    #   @param [Hash, Array<Hash>, Set<Hash>] headers Any number of headers to be added to curl's slist. Ultimate form
-    #     must be a Hash; multiple Hashes with the same key (and different value) can be placed in an Array, if desired.
-    def set_headers(headers)
-      case headers
-      when Hash
-        headers.each_pair do |k_v|
-          self.request_headers = CurlFFI.slist_append(self.request_headers, k_v.join(": "))
-        end
-      when Array, Set
-        headers.each do |header|
-          header.each_pair do |k_v|
-            self.request_headers = CurlFFI.slist_append(self.request_headers, k_v.join(": "))
-          end
-        end
-      end
-      return self.request_headers
-    end # def set_headers
 
     # Set one of libCurl's many options here
     #   @param [Hash] options One or more options to set within the current (future) Curl request
@@ -85,7 +75,7 @@ module StreamlyFFI
       end
 
       if options.has_key?(:headers)
-        connection.setopt(:HTTPHEADER, set_headers(options[:headers])) unless options[:headers].nil?
+        set_headers(options[:headers]) unless options[:headers].nil?
       end
 
       if options.has_key?(:response_header_handler)
@@ -119,30 +109,57 @@ module StreamlyFFI
       return self
     end
 
+
+    # Set/add request headers in Curl's slist
+    #   @param [Hash, Array<Hash>, Set<Hash>] headers Any number of headers to be added to curl's slist. Ultimate form
+    #     must be a Hash; multiple Hashes with the same key (and different value) can be placed in an Array, if desired.
+    # @TODO: Type checking? It makes things slooow.
+    def set_headers(headers)
+      case headers
+      when Hash
+        headers.each_pair do |k_v|
+          self.request_headers = CurlFFI.slist_append(self.request_headers, k_v.join(": "))
+        end
+      when Array, Set
+        headers.each do |header|
+          header.each_pair do |k_v|
+            self.request_headers = CurlFFI.slist_append(self.request_headers, k_v.join(": "))
+          end
+        end
+      end
+      connection.setopt(:HTTPHEADER, self.request_headers)
+    end
+
+    # @return [CurlFFI::Easy] The Curl connection instance
     def connection
       @connection ||= CurlFFI::Easy.new
     end
 
+    # @return [FFI::MemoryPointer] A buffer that stores error data, from Curl
     def error_buffer
       @error_buffer ||= FFI::MemoryPointer.new(:char, CurlFFI::ERROR_SIZE, :clear)
     end
     alias :error    :error_buffer
 
+    # @return [FFI::MemoryPointer] Points to Curl's request headers slist
     def request_headers
       @request_headers ||= FFI::MemoryPointer.new(:pointer)
     end
 
+    # @return [String] The response body that was received by Curl; only used if you did not supply a handler
     def response_body
       @response_body ||= ""
     end
     alias :response :response_body
     alias :body     :response_body
 
+    # @return [String] The response headers that were received by Curl; only used if you did not supply a handler
     def response_header
       @response_header ||= ""
     end
     alias :headers  :response_header
 
+private
     def set_write_handler(_callback=:default_write_callback)
       @_write_handler = FFI::Function.new(:size_t, [:pointer, :size_t, :size_t,], &self.__method__(_callback))
 
