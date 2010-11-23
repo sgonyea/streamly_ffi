@@ -48,6 +48,14 @@ module StreamlyFFI
       return self.request_headers
     end # def set_headers
 
+    # Set one of libCurl's many options here
+    #   @param [Hash] options One or more options to set within the current (future) Curl request
+    #   @option options [String]  :url      The full URL of the destination
+    #   @option options [Symbol]  :method   The method in which to send the request (Commonly, :get, :head, :post, :put, :delete)
+    #   @option options [String]  :payload  The data to be sent with your request. Only valid for :post and :put
+    #   @option options [Proc]    :response_header_handler  A proc that may be called as headers are received from the host. Headers are received in "chunks" and this will allow you to interact with those chunks, as they become available.
+    #   @option options [Proc]    :response_body_handler    A proc that may be called as content is received from the host. Content is received in "chunks" and this will allow you to interact with those chunks, as they become available.
+    #   @option options [Hash,Array]  :headers  The headers you'd like to send to the remote destination. This may be a Hash or an Array. A given Header's key may have multiple values; in such a case, you must supply those multiple values in an Array of Hashes
     def set_options(options={})
       @url      = options[:url].dup     if options.has_key?(:url)     # Make sure @url is set, if not
       @method   = options[:method]      if options.has_key?(:method)  # Make sure @method is set, if not
