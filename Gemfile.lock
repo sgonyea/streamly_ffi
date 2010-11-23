@@ -1,13 +1,13 @@
 PATH
   remote: .
   specs:
-    streamly_ffi (0.2.4)
+    streamly_ffi (0.2.6)
       curl_ffi
 
 GEM
   remote: http://rubygems.org/
   specs:
-    curl_ffi (0.0.6)
+    curl_ffi (0.0.8)
       ffi
     diff-lcs (1.1.2)
     ffi (0.6.3)
