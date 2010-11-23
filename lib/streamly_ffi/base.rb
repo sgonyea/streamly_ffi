@@ -29,6 +29,25 @@ module StreamlyFFI
       connection.perform
     end
 
+    # Set/add request headers in Curl's slist
+    #   @param [Hash, Array<Hash>, Set<Hash>] headers Any number of headers to be added to curl's slist. Ultimate form
+    #     must be a Hash; multiple Hashes with the same key (and different value) can be placed in an Array, if desired.
+    def set_headers(headers)
+      case headers
+      when Hash
+        headers.each_pair do |k_v|
+          self.request_headers = CurlFFI.slist_append(self.request_headers, k_v.join(": "))
+        end
+      when Array, Set
+        headers.each do |header|
+          header.each_pair do |k_v|
+            self.request_headers = CurlFFI.slist_append(self.request_headers, k_v.join(": "))
+          end
+        end
+      end
+      return self.request_headers
+    end # def set_headers
+
     def set_options(options={})
       @url      = options[:url].dup     if options.has_key?(:url)     # Make sure @url is set, if not
       @method   = options[:method]      if options.has_key?(:method)  # Make sure @method is set, if not
@@ -57,11 +76,8 @@ module StreamlyFFI
       # else I WILL CUT YOU
       end
 
-      if options.has_key?(:headers) and not options[:headers].nil?
-        options[:headers].each_pair do |key_and_value|
-          self.request_headers = CurlFFI.slist_append(self.request_headers, key_and_value.join(": "))
-        end
-        connection.setopt :HTTPHEADER, @request_headers
+      if options.has_key?(:headers)
+        connection.setopt(:HTTPHEADER, set_headers(options[:headers])) unless options[:headers].nil?
       end
 
       if options.has_key?(:response_header_handler)

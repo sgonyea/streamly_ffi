@@ -26,7 +26,7 @@ require 'rspec/core'
 require 'rspec/core/rake_task'
 
 desc "Run all examples with RCov"
-Rspec::Core::RakeTask.new('spec:rcov') do |t|
+RSpec::Core::RakeTask.new('spec:rcov') do |t|
 #Spec::Rake::SpecTask.new('spec:rcov') do |t|
   t.pattern   = "spec/requests/**/*_spec.rb"
   t.rcov      = true
@@ -36,7 +36,7 @@ Rspec::Core::RakeTask.new('spec:rcov') do |t|
     }.flatten
   end
 end
-Rspec::Core::RakeTask.new(:spec) do |t|
+RSpec::Core::RakeTask.new(:spec) do |t|
 #Spec::Rake::SpecTask.new('spec') do |t|
   t.pattern   = "spec/streamly_ffi/**/*_spec.rb"
 #  t.opts  << '--options' << 'spec/spec.opts'

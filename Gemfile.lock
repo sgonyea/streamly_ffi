@@ -1,15 +1,16 @@
 PATH
   remote: .
   specs:
-    streamly_ffi (0.2.4)
+    streamly_ffi (0.2.6)
       curl_ffi
 
 GEM
   remote: http://rubygems.org/
   specs:
-    curl_ffi (0.0.6)
+    curl_ffi (0.0.8)
       ffi
     diff-lcs (1.1.2)
+    fakeweb (1.3.0)
     ffi (0.6.3)
       rake (>= 0.8.7)
     rake (0.8.7)
@@ -27,6 +28,7 @@ PLATFORMS
 
 DEPENDENCIES
   curl_ffi
+  fakeweb
   rspec
   rspec-core
   streamly_ffi!

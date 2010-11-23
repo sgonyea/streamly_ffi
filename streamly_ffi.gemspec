@@ -18,8 +18,8 @@ Gem::Specification.new do |s|
   s.email           = %q{seniorlopez@gmail.com}
   s.homepage        = %q{http://github.com/aitrus/streamly_ffi}
 
-  s.add_dependency    "curl_ffi"
-  s.add_development_dependency "rspec"
+  s.add_dependency              "curl_ffi"
+  s.add_development_dependency  "rspec"
 
   s.files           = `git ls-files`.split("\n")
   s.test_files      = `git ls-files -- {test,spec,features}/*`.split("\n")
