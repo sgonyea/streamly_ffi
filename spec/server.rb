@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'sinatra'
 
+disable :logging, :dump_errors, :sessions, :clean_trace, :show_exceptions
+
 get '/' do
   "Hello, #{params[:name]}".strip
 end

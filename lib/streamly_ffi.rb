@@ -1,18 +1,14 @@
+# encoding: UTF-8
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
-# encoding: UTF-8
 require 'streamly_ffi/version'
+require 'streamly_ffi/base'
 
 module StreamlyFFI
-#  autoload :Base,               "streamly_ffi/base"
-require "streamly_ffi/base"
-require "streamly_ffi/connection"
-require "streamly_ffi/request"
-require "streamly_ffi/persistent_request"
-#  autoload :Connection,         "streamly_ffi/connection"
-#  autoload :Request,            "streamly_ffi/request"
-#  autoload :PersistentRequest,  "streamly_ffi/persistent_request"
+  autoload :Request,            'streamly_ffi/request'
+  autoload :Connection,         'streamly_ffi/connection'
+  autoload :PersistentRequest,  'streamly_ffi/persistent_request'
 
   class Error               < StandardError; end
   class UnsupportedProtocol < StandardError; end

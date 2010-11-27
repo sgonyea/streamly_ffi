@@ -1,10 +1,16 @@
 module StreamlyFFI
   class Connection
 
-    attr_accessor :curl_handle
+    attr_accessor :curl_handle, :init_url
 
-    def initialize
-      @curl_handle = StreamlyFFI::PersistentRequest.new
+    def initialize(url=nil, options=nil)
+      unless url.nil?
+        @init_url     = url
+        options       = {} if options.nil?
+        options[:url] = @init_url
+      end
+
+      @curl_handle = StreamlyFFI::PersistentRequest.new(options)
     end
 
     # A helper method to make HEAD requests a dead-simple one-liner
@@ -111,6 +117,10 @@ module StreamlyFFI
 
     def escape(_string)
       @curl_handle.escape(_string)
+    end
+
+    def perform
+      @curl_handle.perform
     end
   end
 end

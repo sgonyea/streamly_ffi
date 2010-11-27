@@ -7,6 +7,12 @@ module StreamlyFFI
   class PersistentRequest
     include StreamlyFFI::Base
 
+    attr_accessor :init_url
+
+    def initialize(options=nil)
+        self.set_options(options) if options
+    end
+
     def [](_sym)
       send _sym
     end
